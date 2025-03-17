@@ -3,6 +3,7 @@
  */
 
 import {
+  AzureCliCredential,  // ✅ Added for CLI authentication
   ClientCertificateCredential,
   ClientSecretCredential,
   DefaultAzureCredential,
@@ -14,11 +15,18 @@ import { configLoader } from '@cloud-carbon-footprint/common'
 
 export default class AzureCredentialsProvider {
   static async create(): Promise<
+    | AzureCliCredential
     | ClientCertificateCredential
     | ClientSecretCredential
     | WorkloadIdentityCredential
     | DefaultAzureCredential
   > {
+    // ✅ Use Azure CLI authentication if enabled
+    if (configLoader().AZURE.authentication.useCli) {
+      console.log('🔹 Using Azure CLI authentication...')
+      return new AzureCliCredential()
+    }
+
     const clientId = configLoader().AZURE.authentication.clientId
     const clientSecret = configLoader().AZURE.authentication.clientSecret
     const tenantId = configLoader().AZURE.authentication.tenantId
